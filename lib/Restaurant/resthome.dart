@@ -9,18 +9,17 @@ class RestaurantHome extends StatefulWidget {
 }
 
 class _RestaurantHomeState extends State<RestaurantHome> {
-  String restaurantName;
-  String foodName;
-  String amount;
-  String restaurantEmail;
-  String imageUrl;
+  late String restaurantName;
+  late String foodName;
+  late String amount;
+  late String restaurantEmail;
+  late String imageUrl;
 
   @override
   Widget build(BuildContext context) {
-    crudMethods crudObj = new crudMethods();
+    CrudMethods crudObj = CrudMethods();
 
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
       backgroundColor: Colors.grey.shade100,
       body: Builder(
         builder: (context) => SingleChildScrollView(
@@ -37,10 +36,11 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                     Text(
                       'AddDetails',
                       style: TextStyle(
-                          color: Colors.blueGrey,
-                          fontFamily: 'Raleway',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 45),
+                        color: Colors.blueGrey,
+                        fontFamily: 'Raleway',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 45,
+                      ),
                     ),
                   ],
                 ),
@@ -53,8 +53,7 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                   style: TextStyle(fontFamily: 'Raleway', color: Colors.black),
                   decoration: InputDecoration(
                     labelText: "Image Url",
-                    labelStyle:
-                        TextStyle(fontWeight: FontWeight.w200, fontSize: 20),
+                    labelStyle: TextStyle(fontWeight: FontWeight.w200, fontSize: 20),
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) {
@@ -71,8 +70,7 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                   style: TextStyle(fontFamily: 'Raleway', color: Colors.black),
                   decoration: InputDecoration(
                     labelText: "Restaurant Name",
-                    labelStyle:
-                        TextStyle(fontWeight: FontWeight.w200, fontSize: 20),
+                    labelStyle: TextStyle(fontWeight: FontWeight.w200, fontSize: 20),
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) {
@@ -88,8 +86,7 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                   style: TextStyle(fontFamily: 'Raleway', color: Colors.black),
                   decoration: InputDecoration(
                     labelText: "Food Name",
-                    labelStyle:
-                        TextStyle(fontWeight: FontWeight.w200, fontSize: 20),
+                    labelStyle: TextStyle(fontWeight: FontWeight.w200, fontSize: 20),
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) {
@@ -105,8 +102,7 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                   style: TextStyle(fontFamily: 'Raleway', color: Colors.black),
                   decoration: InputDecoration(
                     labelText: "Amount",
-                    labelStyle:
-                        TextStyle(fontWeight: FontWeight.w200, fontSize: 20),
+                    labelStyle: TextStyle(fontWeight: FontWeight.w200, fontSize: 20),
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) {
@@ -118,8 +114,12 @@ class _RestaurantHomeState extends State<RestaurantHome> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  RaisedButton(
-                    color: Themes.color,
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Themes.color,
+                      elevation: 4.0,
+                      splashFactory: InkSplash.splashFactory,
+                    ),
                     onPressed: () {
                       Map<String, dynamic> restaurantData = {
                         'restaurantName': this.restaurantName,
@@ -133,31 +133,30 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                         print(e);
                       });
                     },
-                    elevation: 4.0,
-                    splashColor: Colors.yellow,
                     child: Text(
                       'Submit',
                       style: TextStyle(color: Colors.black, fontSize: 18.0),
                     ),
                   ),
-                  RaisedButton(
-                    color: Colors.red.shade400,
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.shade400,
+                      elevation: 4.0,
+                      splashFactory: InkSplash.splashFactory,
+                    ),
                     onPressed: () {
                       Navigator.of(context).pop();
                       FirebaseAuth.instance.signOut().then((value) {
-                        Navigator.of(context)
-                            .pushReplacementNamed('\firstpage');
+                        Navigator.of(context).pushReplacementNamed('/firstpage');
                       }).catchError((e) {
                         print(e);
                       });
                     },
-                    elevation: 4.0,
-                    splashColor: Colors.yellow,
                     child: Text(
                       'LogOut',
                       style: TextStyle(color: Colors.black, fontSize: 18.0),
                     ),
-                  )
+                  ),
                 ],
               )
             ],
@@ -168,29 +167,32 @@ class _RestaurantHomeState extends State<RestaurantHome> {
   }
 }
 
-Future<bool> dialogTrigger(BuildContext context) async {
+Future<Future> dialogTrigger(BuildContext context) async {
   return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Job done', style: TextStyle(fontSize: 22.0)),
-          content: Text(
-            'Added Successfully',
-            style: TextStyle(fontSize: 20.0),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              child: Text(
-                'Alright',
-                style: TextStyle(fontSize: 18),
-              ),
-              textColor: Themes.color,
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            )
-          ],
-        );
-      });
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Job done', style: TextStyle(fontSize: 22.0)),
+        content: Text(
+          'Added Successfully',
+          style: TextStyle(fontSize: 20.0),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text(
+              'Alright',
+              style: TextStyle(fontSize: 18),
+            ),
+            style: TextButton.styleFrom(
+              backgroundColor: Themes.color,
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          )
+        ],
+      );
+    },
+  );
 }

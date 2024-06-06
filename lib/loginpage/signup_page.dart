@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_delivery/const/themeColor.dart';
 import 'package:food_delivery/services/usermanagement.dart';
-import './sigin_page.dart';
+import './signin_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 final FirebaseAuth mAuth = FirebaseAuth.instance;
@@ -20,7 +20,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
+      // resizeToAvoidBottomPadding: false,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 1.0),
         child: Column(

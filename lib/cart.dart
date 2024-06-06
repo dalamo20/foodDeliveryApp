@@ -11,12 +11,14 @@ class Cart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CartListBloc bloc = BlocProvider.getBloc<CartListBloc>();
-    List<FoodItem> foodItems;
+
     return StreamBuilder(
       stream: bloc.listStream,
       builder: (context, snapshot) {
-        if (snapshot.data != null) {
-          foodItems = snapshot.data;
+        if (snapshot.hasData) {
+          // Use a null-aware operator to handle nullability
+          List<FoodItem> foodItems = snapshot.data as List<FoodItem>? ?? [];
+
           return Scaffold(
             body: SafeArea(
               child: CartBody(foodItems),
@@ -79,8 +81,8 @@ class BottomBar extends StatelessWidget {
               ),
             ),
             onTap: () {
-               Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (BuildContext context) => PaymentPage()));
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (BuildContext context) => PaymentPage()));
             },
           ),
         ],
@@ -141,6 +143,15 @@ class CustomPersonWidget extends StatefulWidget {
   _CustomPersonWidgetState createState() => _CustomPersonWidgetState();
 }
 
+final ButtonStyle flatButtonStyle = TextButton.styleFrom(
+  // primary: Colors.black87,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(2)),
+  ),
+);
+
 class _CustomPersonWidgetState extends State<CustomPersonWidget> {
   int noOfPersons = 1;
 
@@ -151,7 +162,7 @@ class _CustomPersonWidgetState extends State<CustomPersonWidget> {
     return Container(
       margin: EdgeInsets.only(right: 25),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300], width: 2),
+        border: Border.all(color: Color(0xFFE0E0E0), width: 2),
         borderRadius: BorderRadius.circular(10),
       ),
       padding: EdgeInsets.symmetric(vertical: 5),
@@ -162,8 +173,8 @@ class _CustomPersonWidgetState extends State<CustomPersonWidget> {
           SizedBox(
             width: _buttonWidth,
             height: _buttonWidth,
-            child: FlatButton(
-              padding: EdgeInsets.all(0),
+            child: TextButton(
+              // padding: EdgeInsets.all(0),
               onPressed: () {
                 setState(() {
                   if (noOfPersons > 1) {
@@ -184,8 +195,8 @@ class _CustomPersonWidgetState extends State<CustomPersonWidget> {
           SizedBox(
             width: _buttonWidth,
             height: _buttonWidth,
-            child: FlatButton(
-              padding: EdgeInsets.all(0),
+            child: TextButton(
+              // padding: EdgeInsets.all(0),
               onPressed: () {
                 setState(() {
                   noOfPersons++;
@@ -282,7 +293,7 @@ class CartBody extends StatelessWidget {
 class CartListItem extends StatelessWidget {
   final FoodItem foodItem;
 
-  CartListItem({@required this.foodItem});
+  CartListItem({required this.foodItem});
 
   @override
   Widget build(BuildContext context) {
@@ -301,8 +312,8 @@ class CartListItem extends StatelessWidget {
 
 class DraggableChild extends StatelessWidget {
   const DraggableChild({
-    Key key,
-    @required this.foodItem,
+    Key? key,
+    required this.foodItem,
   }) : super(key: key);
 
   final FoodItem foodItem;
@@ -320,8 +331,8 @@ class DraggableChild extends StatelessWidget {
 
 class DraggableChildFeedback extends StatelessWidget {
   const DraggableChildFeedback({
-    Key key,
-    @required this.foodItem,
+    Key? key,
+    required this.foodItem,
   }) : super(key: key);
 
   final FoodItem foodItem;
@@ -354,8 +365,8 @@ class DraggableChildFeedback extends StatelessWidget {
 
 class ItemContent extends StatelessWidget {
   const ItemContent({
-    Key key,
-    @required this.foodItem,
+    Key? key,
+    required this.foodItem,
   }) : super(key: key);
 
   final FoodItem foodItem;
@@ -393,7 +404,7 @@ class ItemContent extends StatelessWidget {
           Text(
             "\₹${foodItem.quantity * foodItem.price}",
             style:
-                TextStyle(color: Colors.grey[500], fontWeight: FontWeight.w400),
+            TextStyle(color: Colors.grey[500], fontWeight: FontWeight.w400),
           ),
         ],
       ),
@@ -439,23 +450,23 @@ class DragTargetWidget extends StatefulWidget {
 class _DragTargetWidgetState extends State<DragTargetWidget> {
   @override
   Widget build(BuildContext context) {
-    FoodItem currentFoodItem;
+    FoodItem? currentFoodItem;
     final ColorBloc colorBloc = BlocProvider.getBloc<ColorBloc>();
 
     return DragTarget<FoodItem>(
       onAccept: (FoodItem foodItem) {
         currentFoodItem = foodItem;
         colorBloc.setColor(Colors.white);
-        widget.bloc.removeFromList(currentFoodItem);
+        widget.bloc.removeFromList(currentFoodItem!);
       },
-      onWillAccept: (FoodItem foodItem) {
+      onWillAcceptWithDetails: (DragTargetDetails<FoodItem> details) {
         colorBloc.setColor(Colors.red);
         return true;
       },
-      onLeave: (FoodItem ) {
+      onLeave: (FoodItem? foodItem) {
         colorBloc.setColor(Colors.white);
       },
-      builder: (BuildContext context, List incoming, List rejected) {
+      builder: (BuildContext context, List<FoodItem?> incoming, List<dynamic> rejected) {
         return Padding(
           padding: const EdgeInsets.all(5.0),
           child: Icon(
@@ -467,3 +478,4 @@ class _DragTargetWidgetState extends State<DragTargetWidget> {
     );
   }
 }
+

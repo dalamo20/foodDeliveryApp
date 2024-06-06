@@ -10,20 +10,26 @@ class Location extends StatefulWidget {
 
 class _LocationState extends State<Location> {
   bool mapToggle = false;
-
   var currentLocation;
+  late GoogleMapController mapController;
 
-  GoogleMapController mapController;
-
+  @override
   void initState() {
     super.initState();
-    Geolocator().getCurrentPosition().then((currloc) {
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
       setState(() {
-        currentLocation = currloc;
-        
+        currentLocation = position;
         mapToggle = true;
       });
-    });
+    } catch (e) {
+      print('Could not get the location: $e');
+    }
   }
 
   @override
@@ -34,31 +40,34 @@ class _LocationState extends State<Location> {
         title: Text('Track Your Order'),
       ),
       body: Center(
-          child: Container(
-        height: MediaQuery.of(context).size.height,
-        
-        width: MediaQuery.of(context).size.width,
-        child: mapToggle
-            ? GoogleMap(
-                onMapCreated: onMapCreated,
-                myLocationEnabled: true,
-                mapType: MapType.normal,
-                initialCameraPosition: CameraPosition(
-                    target: LatLng(
-                        currentLocation.latitude, currentLocation.longitude),
-                    zoom: 19.0),
-              )
-            : Center(
-                child: Text(
-                  'Loading ..please Wait..',
-                  style: TextStyle(fontSize: 20.0),
-                ),
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: mapToggle
+              ? GoogleMap(
+            onMapCreated: onMapCreated,
+            myLocationEnabled: true,
+            mapType: MapType.normal,
+            initialCameraPosition: CameraPosition(
+              target: LatLng(
+                currentLocation.latitude,
+                currentLocation.longitude,
               ),
-      )),
+              zoom: 19.0,
+            ),
+          )
+              : Center(
+            child: Text(
+              'Loading ..please Wait..',
+              style: TextStyle(fontSize: 20.0),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
-  void onMapCreated(controller) {
+  void onMapCreated(GoogleMapController controller) {
     setState(() {
       mapController = controller;
     });

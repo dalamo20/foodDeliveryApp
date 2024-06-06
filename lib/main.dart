@@ -1,10 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:food_delivery/Restaurant/resthome.dart';
 import 'package:food_delivery/Restaurant/rlogin.dart';
 import 'package:food_delivery/Restaurant/rsignup.dart';
 import 'package:food_delivery/firstpage.dart';
-import './loginpage/sigin_page.dart';
+import './loginpage/signin_page.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import './bloc/cartListBloc.dart';
 import 'package:bloc_pattern/bloc_pattern.dart';
@@ -15,143 +16,99 @@ import './cart.dart';
 import './loginpage/signup_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-void main() {
-  debugDefaultTargetPlatformOverride =TargetPlatform.fuchsia;
-   runApp(MyApp());
+
+Future<void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
 }
+// void main() {
+//   runApp(MyApp());
+// }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       blocs: [
-        //add yours BLoCs controlles
+        // Add your BLoCs controllers
         Bloc((i) => CartListBloc()),
         Bloc((i) => ColorBloc()),
       ],
+      dependencies: [],
       child: MaterialApp(
           title: "Food Tukk",
           home: FirstPage(),
           debugShowCheckedModeBanner: false,
           routes: <String, WidgetBuilder>{
-            '/landingpage': (BuildContext context) => new MyApp(),
-            '/signup': (BuildContext context) => new SignUpPage(),
-            '/homepage': (BuildContext context) => new Home(),
-            '/signin': (BuildContext context) => new SignInPage(),
-            '/rlogin': (BuildContext context) => new RestaurantLogin(),
-            '/rsignup': (BuildContext context) => new RestaurantSignup(),
-            '/resthome': (BuildContext context) => new RestaurantHome(),
-            '/firstpage': (BuildContext context) => new FirstPage(),
+            '/landingpage': (BuildContext context) => MyApp(),
+            '/signup': (BuildContext context) => SignUpPage(),
+            '/homepage': (BuildContext context) => Home(),
+            '/signin': (BuildContext context) => SignInPage(),
+            '/rlogin': (BuildContext context) => RestaurantLogin(),
+            '/rsignup': (BuildContext context) => RestaurantSignup(),
+            '/resthome': (BuildContext context) => RestaurantHome(),
+            '/firstpage': (BuildContext context) => FirstPage(),
           }),
     );
   }
 }
 
 class Home extends StatefulWidget {
+  Home({Key? key}) : super(key: key);
+
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  // Define a sample list of food items (Replace this with your actual data source)
+  final List<FoodItem> fooditemList = [
+    FoodItem(id: 1, title: 'Pizza', hotel: 'Pizza Hut', price: 250.0, imgUrl: 'https://example.com/pizza.jpg', quantity: 1),
+    FoodItem(id: 2, title: 'Burger', hotel: 'McDonald\'s', price: 150.0, imgUrl: 'https://example.com/burger.jpg', quantity: 1),
+    // Add more FoodItem objects as needed
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: false,
       drawer: Drawer(
         child: Column(
           children: <Widget>[
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(20),
-              color: Themes.color,
-              child: Center(
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      width: 100,
-                      height: 100,
-                      margin: EdgeInsets.only(top: 30, bottom: 10),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                            image: NetworkImage(
-                                'https://cdn2.iconfinder.com/data/icons/website-icons/512/User_Avatar-512.png'),
-                            fit: BoxFit.fill),
-                      ),
-                    ),
-                    Text(
-                      'Name: user',
-                      style: TextStyle(fontSize: 22, color: Colors.black87),
-                    ),
-                    Text(
-                      'Email: user@gmail.com',
-                      style: TextStyle(color: Colors.black87),
-                    )
-                  ],
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text(
-                'Setting',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: null,
-            ),
-            ListTile(
-              leading: Icon(Icons.arrow_back),
-              title: Text(
-                'Logout',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                _googleSignIn.signOut();
-                print('User Signed Out');
-                Navigator.of(context).pop();
-                FirebaseAuth.instance.signOut().then((value) {
-                  Navigator.of(context).pushReplacementNamed('/firstpage');
-                }).catchError((e) {
-                  print(e);
-                });
-              },
-            ),
+            // Drawer header and options
           ],
         ),
       ),
       body: SafeArea(
-          child: Container(
-        child: ListView(
-          children: <Widget>[
-            FirstHalf(),
-            SizedBox(height: 45),
-            for (var foodItem in fooditemList.foodItems)
-              Builder(
-                builder: (context) {
-                  return ItemContainer(foodItem: foodItem);
-                },
-              )
-          ],
+        child: Container(
+          child: ListView(
+            children: <Widget>[
+              FirstHalf(),
+              SizedBox(height: 45),
+              for (var foodItem in fooditemList)
+                ItemContainer(foodItem: foodItem)
+            ],
+          ),
         ),
-      )),
+      ),
     );
   }
 }
 
 class ItemContainer extends StatelessWidget {
-  ItemContainer({
-    @required this.foodItem,
-  });
-
   final FoodItem foodItem;
   final CartListBloc bloc = BlocProvider.getBloc<CartListBloc>();
 
-  addToCart(FoodItem foodItem) {
+  ItemContainer({Key? key, required this.foodItem}) : super(key: key);
+
+  void addToCart(FoodItem foodItem) {
     bloc.addToList(foodItem);
   }
 
-  removeFromList(FoodItem foodItem) {
+  void removeFromList(FoodItem foodItem) {
     bloc.removeFromList(foodItem);
   }
 
@@ -164,23 +121,21 @@ class ItemContainer extends StatelessWidget {
           content: Text('₹${foodItem.title} added to Cart'),
           duration: Duration(milliseconds: 550),
         );
-        Scaffold.of(context).showSnackBar(snackBar);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       },
       child: Items(
         hotel: foodItem.hotel,
         itemName: foodItem.title,
         itemPrice: foodItem.price,
         imgUrl: foodItem.imgUrl,
-        leftAligned: (foodItem.id % 2) == 0 ? true : false,
+        leftAligned: (foodItem.id % 2) == 0,
       ),
     );
   }
 }
 
 class FirstHalf extends StatelessWidget {
-  const FirstHalf({
-    Key key,
-  }) : super(key: key);
+  const FirstHalf({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +144,6 @@ class FirstHalf extends StatelessWidget {
       child: Column(
         children: <Widget>[
           CustomAppBar(),
-          //you could also use the spacer widget to give uneven distances, i just decided to go with a sizebox
           SizedBox(height: 30),
           title(),
           SizedBox(height: 30),
@@ -200,63 +154,41 @@ class FirstHalf extends StatelessWidget {
       ),
     );
   }
-}
 
-Widget categories() {
-  return Container(
-    height: 185,
-    child: ListView(
-      scrollDirection: Axis.horizontal,
-      children: <Widget>[
-        CategoryListItem(
-          categoryIcon: Icons.fastfood,
-          categoryName: "Burgers",
-          availability: 2,
-          selected: true,
-        ),
-        CategoryListItem(
-          categoryIcon: Icons.fastfood,
-          categoryName: "Pizza",
-          availability: 1,
-          selected: true,
-        ),
-        CategoryListItem(
-          categoryIcon: Icons.fastfood,
-          categoryName: "Samosa",
-          availability: 1,
-          selected: false,
-        ),
-        CategoryListItem(
-          categoryIcon: Icons.fastfood,
-          categoryName: "Idli Sambhar",
-          availability: 1,
-          selected: true,
-        ),
-        CategoryListItem(
-          categoryIcon: Icons.fastfood,
-          categoryName: "Masala Dosa",
-          availability: 1,
-          selected: true,
-        ),
-        CategoryListItem(
-          categoryIcon: Icons.fastfood,
-          categoryName: "Rolls",
-          availability: 1,
-          selected: true,
-        ),
-      ],
-    ),
-  );
+  Widget categories() {
+    return Container(
+      height: 80,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: <Widget>[
+          CategoryListItem(
+            categoryIcon: Icons.fastfood,
+            categoryName: 'Fast Food',
+            availability: 21,
+            selected: true,
+          ),
+          CategoryListItem(
+            categoryIcon: Icons.local_pizza,
+            categoryName: 'Pizza',
+            availability: 15,
+            selected: false,
+          ),
+          // Add more CategoryListItem widgets as needed
+        ],
+      ),
+    );
+  }
 }
 
 class Items extends StatelessWidget {
   Items({
-    @required this.leftAligned,
-    @required this.imgUrl,
-    @required this.itemName,
-    @required this.itemPrice,
-    @required this.hotel,
-  });
+    Key? key,
+    required this.leftAligned,
+    required this.imgUrl,
+    required this.itemName,
+    required this.itemPrice,
+    required this.hotel,
+  }) : super(key: key);
 
   final bool leftAligned;
   final String imgUrl;
@@ -282,7 +214,7 @@ class Items extends StatelessWidget {
                 width: double.infinity,
                 height: 200,
                 decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                BoxDecoration(borderRadius: BorderRadius.circular(10)),
                 child: ClipRRect(
                   borderRadius: BorderRadius.horizontal(
                     left: leftAligned
@@ -351,11 +283,11 @@ class Items extends StatelessWidget {
 
 class CategoryListItem extends StatelessWidget {
   const CategoryListItem({
-    Key key,
-    @required this.categoryIcon,
-    @required this.categoryName,
-    @required this.availability,
-    @required this.selected,
+    Key? key,
+    required this.categoryIcon,
+    required this.categoryName,
+    required this.availability,
+    required this.selected,
   }) : super(key: key);
 
   final IconData categoryIcon;
@@ -372,11 +304,12 @@ class CategoryListItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(40),
         color: selected ? Themes.color : Colors.white,
         border: Border.all(
-            color: selected ? Colors.transparent : Colors.grey[200],
-            width: 1.5),
+          color: selected ? Colors.transparent : Colors.grey[200] ?? Colors.grey,
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey[100],
+            color: Colors.grey[100] ?? Colors.grey,
             blurRadius: 15,
             offset: Offset(15, 0),
             spreadRadius: 5,
@@ -389,11 +322,13 @@ class CategoryListItem extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(
-                    color: selected ? Colors.transparent : Colors.grey[200],
-                    width: 1.5)),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(
+                color: selected ? Colors.transparent : Colors.grey[200] ?? Colors.grey,
+                width: 1.5,
+              ),
+            ),
             child: Icon(
               categoryIcon,
               color: Colors.black,
@@ -404,7 +339,10 @@ class CategoryListItem extends StatelessWidget {
           Text(
             categoryName,
             style: TextStyle(
-                fontWeight: FontWeight.w700, color: Colors.black, fontSize: 15),
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
+              fontSize: 15,
+            ),
           ),
           Container(
             margin: EdgeInsets.fromLTRB(0, 6, 0, 10),
@@ -418,7 +356,7 @@ class CategoryListItem extends StatelessWidget {
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
-          )
+          ),
         ],
       ),
     );
@@ -437,13 +375,15 @@ Widget searchBar() {
       Expanded(
         child: TextField(
           decoration: InputDecoration(
-              hintText: "Search....",
-              contentPadding: EdgeInsets.symmetric(vertical: 10),
-              hintStyle: TextStyle(
-                color: Colors.black87,
-              ),
-              border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red))),
+            hintText: "Search....",
+            contentPadding: EdgeInsets.symmetric(vertical: 10),
+            hintStyle: TextStyle(
+              color: Colors.black87,
+            ),
+            border: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.red),
+            ),
+          ),
         ),
       ),
     ],
@@ -473,7 +413,7 @@ Widget title() {
             ),
           ),
         ],
-      )
+      ),
     ],
   );
 }
@@ -491,7 +431,7 @@ class CustomAppBar extends StatelessWidget {
           StreamBuilder(
             stream: bloc.listStream,
             builder: (context, snapshot) {
-              List<FoodItem> foodItems = snapshot.data;
+              List<FoodItem>? foodItems = snapshot.data;
               int length = foodItems != null ? foodItems.length : 0;
               return buildGestureDetector(length, context, foodItems);
             },
@@ -501,13 +441,14 @@ class CustomAppBar extends StatelessWidget {
     );
   }
 
-  GestureDetector buildGestureDetector(
-      int length, BuildContext context, List<FoodItem> foodItems) {
+  GestureDetector buildGestureDetector(int length, BuildContext context, List<FoodItem>? foodItems) {
     return GestureDetector(
       onTap: () {
         if (length > 0) {
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Cart()));
+            context,
+            MaterialPageRoute(builder: (context) => Cart()),
+          );
         } else {
           return;
         }
@@ -517,8 +458,11 @@ class CustomAppBar extends StatelessWidget {
         child: Text(length.toString()),
         padding: EdgeInsets.all(15),
         decoration: BoxDecoration(
-            color: Colors.yellow[800], borderRadius: BorderRadius.circular(50)),
+          color: Colors.yellow[800],
+          borderRadius: BorderRadius.circular(50),
+        ),
       ),
     );
   }
 }
+

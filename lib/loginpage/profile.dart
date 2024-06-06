@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:food_delivery/const/themeColor.dart';
-import '../loginpage/sigin_page.dart';
+import '../loginpage/signin_page.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilePage extends StatefulWidget {
   final UserDetails detailsUser;
-  ProfilePage({Key key, this.detailsUser}) : super(key: key);
+  // Key is optional and should not be required
+  ProfilePage({Key? key, required this.detailsUser}) : super(key: key);
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -16,7 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: new Stack(
+      body: Stack(
         children: <Widget>[
           ClipPath(
             child: Container(color: Themes.color),
@@ -32,17 +34,19 @@ class _ProfilePageState extends State<ProfilePage> {
                   height: 150.0,
                   decoration: BoxDecoration(
                     color: Themes.color,
-                      image: DecorationImage(
-                          image: NetworkImage(
-                              '${this.widget.detailsUser.photoUrl}'),
-                          fit: BoxFit.cover),
-                      borderRadius: BorderRadius.all(Radius.circular(75.0)),
-                      boxShadow: [
-                        BoxShadow(
-                            blurRadius: 7.2,
-                            color: Colors.black,
-                            spreadRadius: 0.2)
-                      ]),
+                    image: DecorationImage(
+                      image: NetworkImage('${this.widget.detailsUser.photoUrl}'),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(75.0)),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 7.2,
+                        color: Colors.black,
+                        spreadRadius: 0.2,
+                      )
+                    ],
+                  ),
                 ),
                 SizedBox(height: 15.0),
                 Text(
